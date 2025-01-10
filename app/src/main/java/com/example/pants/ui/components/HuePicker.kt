@@ -1,4 +1,4 @@
-package com.example.pants.utils.components
+package com.example.pants.ui.components
 
 import android.graphics.Bitmap
 import android.graphics.Color.HSVToColor

@@ -21,10 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.pants.R
-import com.example.pants.domain.ColorModel
-import com.example.pants.main.SharedGameViewModel
-import com.example.pants.utils.components.PickerContent
-import com.example.pants.utils.components.SaveButton
+import com.example.pants.domain.model.ColorModel
+import com.example.pants.presentation.viewmodel.SharedGameViewModel
+import com.example.pants.ui.components.PickerContent
+import com.example.pants.ui.components.SaveButton
 import com.example.pants.utils.hue
 
 
