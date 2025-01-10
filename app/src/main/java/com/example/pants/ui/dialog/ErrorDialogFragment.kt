@@ -1,4 +1,4 @@
-package com.example.pants.utils.dialog
+package com.example.pants.ui.dialog
 
 import android.app.AlertDialog
 import android.app.Dialog

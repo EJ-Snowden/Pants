@@ -1,4 +1,4 @@
-package com.example.pants.utils.components
+package com.example.pants.ui.components
 
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape

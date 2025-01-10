@@ -1,4 +1,4 @@
-package com.example.pants.utils.ui
+package com.example.pants.ui
 
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.InternalAnimationApi

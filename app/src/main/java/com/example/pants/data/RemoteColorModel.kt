@@ -1,4 +1,4 @@
-package com.example.pants.domain
+package com.example.pants.data
 
 data class ColorResponse(
     val name: Name,
