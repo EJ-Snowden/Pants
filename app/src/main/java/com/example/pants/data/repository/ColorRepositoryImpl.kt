@@ -5,24 +5,32 @@ import com.example.pants.utils.generateRandomColor
 import com.example.pants.data.mapper.toColorModel
 import com.example.pants.service.ColorApiService
 import com.example.pants.domain.repository.ColorRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import java.util.Locale
 
 class ColorRepositoryImpl(
     private val apiService: ColorApiService,
 ) : ColorRepository {
 
-    override suspend fun getRandomColors(count: Int): Result<Set<ColorModel>> = runCatching {
-        val colorList = mutableListOf<ColorModel>()
 
-        while (colorList.size < count) {
-            val color = apiService.getColor(generateRandomColor()).toColorModel()
-            val doesntContainCommon = color.name.lowercase(Locale.getDefault()) !in COMMON_USE_NAMES
-            val isDistinct = color !in colorList
-            if (doesntContainCommon && isDistinct) {
-                colorList.add(color)
-            }
+    override suspend fun getRandomColors(count: Int): Result<Set<ColorModel>> = runCatching {
+        coroutineScope {
+            (1..count).map {
+                async {
+                    generateValidRandomColor()
+                }
+            }.awaitAll().distinctBy { it.name }.toSet()
         }
-        colorList.toSet()
+    }
+
+    private suspend fun generateValidRandomColor(): ColorModel {
+        var randomColor: ColorModel
+        do {
+            randomColor = apiService.getColor(generateRandomColor()).toColorModel()
+        } while (randomColor.name.lowercase(Locale.getDefault()) in COMMON_USE_NAMES)
+        return randomColor
     }
 
     private companion object {
