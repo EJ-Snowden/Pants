@@ -25,12 +25,10 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toRect
 import com.example.pants.R
-import com.example.pants.utils.hue
 
 private const val PICKER_WIDTH = 300
 
@@ -41,12 +39,28 @@ fun HuePicker(
     animatedColor: Color,
     onHueChange: (Float) -> Unit,
 ) {
-    onHueChange(hue)
-    val colorHue = animatedColor.hue
+    var cursorWidth by remember { mutableIntStateOf(0) }
+
+    var width by remember { mutableIntStateOf(0) }
+    var height by remember { mutableIntStateOf(0) }
+
+    val bitmap = remember(width, height) {
+        if (width > 0 && height > 0) {
+            createHueBitmap(width, height)
+        } else {
+            null
+        }
+    }
+
     Box(
         modifier = modifier
             .height(40.dp)
             .width(PICKER_WIDTH.dp)
+            .onSizeChanged { size ->
+                width = size.width
+                height = size.height
+                cursorWidth = size.width
+            }
     ) {
         Canvas(
             modifier = Modifier
@@ -54,47 +68,52 @@ fun HuePicker(
                 .clip(CircleShape)
                 .pointerInput(Unit) {
                     detectTapGestures { offset ->
-                        val newHue = (offset.x / size.width) * 360f
+                        val newHue = ((offset.x / size.width) * 360f).coerceIn(0f, 360f)
                         onHueChange(newHue)
                     }
                 }
         ) {
-            drawHueBitmap()
+            bitmap?.let {
+                drawHueBitmap(it)
+            }
         }
-        var cursorWidth by remember { mutableIntStateOf(0) }
+
+        val cursorOffset = remember(hue, cursorWidth) {
+            ((hue / 360f) * (PICKER_WIDTH - cursorWidth)).dp
+        }
+
         Image(
             painter = painterResource(id = R.drawable.rectangle_cursor),
             contentDescription = null,
             modifier = Modifier
                 .height(40.dp)
-                .onSizeChanged { cursorWidth = it.width }
-                .then(
-                    with(LocalDensity.current) {
-                        Modifier.offset(x = ((hue / 360f) * (PICKER_WIDTH - cursorWidth.toDp().value)).dp)
-                    }
-                )
+                .offset(x = cursorOffset)
         )
     }
 }
 
-private fun DrawScope.drawHueBitmap() {
-    val bitmap =
-        Bitmap.createBitmap(size.width.toInt(), size.height.toInt(), Bitmap.Config.ARGB_8888)
-    val hueCanvas = android.graphics.Canvas(bitmap)
-    val huePanel = RectF(0f, 0f, bitmap.width.toFloat(), bitmap.height.toFloat())
-    val hueColors = IntArray(bitmap.width)
-    var hue = 0f
-    for (i in hueColors.indices) {
-        hueColors[i] = HSVToColor(floatArrayOf(hue, 1f, 1f))
-        hue += 360f / hueColors.size
-    }
-    val linePaint = Paint()
-    linePaint.strokeWidth = 0F
-    for (i in hueColors.indices) {
-        linePaint.color = hueColors[i]
-        hueCanvas.drawLine(i.toFloat(), 0F, i.toFloat(), huePanel.bottom, linePaint)
-    }
-    drawIntoCanvas {
-        it.nativeCanvas.drawBitmap(bitmap, null, huePanel.toRect(), null)
+private fun createHueBitmap(width: Int, height: Int): Bitmap {
+    require(width > 0 && height > 0) { "Width and height must be greater than 0" }
+
+    return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).apply {
+        val hueCanvas = android.graphics.Canvas(this)
+        val huePanel = RectF(0f, 0f, width.toFloat(), height.toFloat())
+        val hueColors = IntArray(width) { i ->
+            val hue = (i / width.toFloat()) * 360f
+            HSVToColor(floatArrayOf(hue, 1f, 1f))
+        }
+        val linePaint = Paint().apply { strokeWidth = 0f }
+        for (i in hueColors.indices) {
+            linePaint.color = hueColors[i]
+            hueCanvas.drawLine(i.toFloat(), 0f, i.toFloat(), huePanel.bottom, linePaint)
+        }
     }
 }
+
+
+private fun DrawScope.drawHueBitmap(bitmap: Bitmap) {
+    drawIntoCanvas { canvas ->
+        canvas.nativeCanvas.drawBitmap(bitmap, null, RectF(0f, 0f, size.width, size.height).toRect(), null)
+    }
+}
+

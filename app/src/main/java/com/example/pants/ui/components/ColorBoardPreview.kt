@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,9 +27,7 @@ internal fun ColorBoardPreview(
     Box(
         modifier = modifier.padding(vertical = 8.dp)
     ) {
-        colors.forEach {
-            DisplayColorFromBoard(colors)
-        }
+        DisplayColorFromBoard(colors)
     }
 }
 
@@ -46,27 +45,24 @@ private fun DisplayColorFromBoard(colors: List<ColorModel>) {
 
 @Composable
 private fun BorderedBox(color: ColorModel) {
-    fun darkenColor(color: Color) =
-        Color(ColorUtils.blendARGB(color.toArgb(), Color.Black.toArgb(), 0.5f))
-    fun ColorModel.asComposeColor() =
-        guessHue?.let { hue -> Color.hsv(hue, 1f, 1f) } ?: Color.Gray
+    val infillColor = remember(color) {
+        color.guessHue?.let { hue -> Color.hsv(hue, 1f, 1f) } ?: Color.Gray
+    }
+    val outlineColor = remember(infillColor) {
+        Color(ColorUtils.blendARGB(infillColor.toArgb(), Color.Black.toArgb(), 0.5f))
+    }
 
-    val infillColor = color.asComposeColor()
-    val outlineColor = darkenColor(color.asComposeColor())
     val colors = listOf(outlineColor, infillColor)
+
     Box(contentAlignment = Alignment.Center) {
         colors.forEach { colorToDraw ->
-            val size = when(colorToDraw) {
-                outlineColor -> 38.dp
-                infillColor -> 32.dp
-                else -> 32.dp
-            }
-            Surface (
+            val size = if (colorToDraw == outlineColor) 38.dp else 32.dp
+            Surface(
                 modifier = Modifier
                     .size(size)
                     .clip(RoundedCornerShape(12.dp)),
                 color = colorToDraw,
-            ) { }
+            ) {}
         }
     }
 }
