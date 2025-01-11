@@ -21,7 +21,7 @@ class ColorRepositoryImpl(
                 async {
                     generateValidRandomColor()
                 }
-            }.awaitAll().distinctBy { it.name }.toSet()
+            }.awaitAll().filter { it.saturation > 0.30 && it.value > 0.40  }.distinctBy { it.name }.toSet()
         }
     }
 
@@ -29,8 +29,12 @@ class ColorRepositoryImpl(
         var randomColor: ColorModel
         do {
             randomColor = apiService.getColor(generateRandomColor()).toColorModel()
-        } while (randomColor.name.lowercase(Locale.getDefault()) in COMMON_USE_NAMES)
+        } while (isCommonName(randomColor.name))
         return randomColor
+    }
+
+    fun isCommonName(name: String): Boolean {
+        return name.lowercase(Locale.getDefault()) in COMMON_USE_NAMES
     }
 
     private companion object {

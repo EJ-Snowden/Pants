@@ -1,12 +1,15 @@
 [versions]
 agp = "8.3.0"
+junit = "4.13.2"
 kotlin = "2.0.0"
 core-ktx = "1.13.1"
+kotlinx-coroutines-test = "1.7.1"
 lifecycle = "2.8.4"
 activity-compose = "1.9.1"
 compose-bom = "2024.08.00"
 fragment-ktx = "1.8.2"
 appcompat = "1.7.0"
+logback-classic = "1.4.5"
 retrofit-version = "2.9.0"
 koin-version = "3.3.2"
 kotlinx-coroutine = "1.7.3"
@@ -19,9 +22,12 @@ lifecycle-runtime-compose-android = "2.8.4"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
+junit = { module = "junit:junit", version.ref = "junit" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }
 ui = { group = "androidx.compose.ui", name = "ui" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling" }
