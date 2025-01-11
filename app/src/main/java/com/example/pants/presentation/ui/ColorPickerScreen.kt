@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.pants.R
 import com.example.pants.domain.model.ColorModel
@@ -26,22 +27,33 @@ import com.example.pants.presentation.viewmodel.SharedGameViewModel
 import com.example.pants.ui.components.PickerContent
 import com.example.pants.ui.components.SaveButton
 import com.example.pants.utils.hue
+import kotlinx.coroutines.flow.combine
 
 
 @Composable
 fun ColorPickerScreen(viewModel: SharedGameViewModel, onSave: () -> Unit) {
-    val selectedColor by viewModel.selectedColor.collectAsStateWithLifecycle()
-    val currentColorName by viewModel.currentColorName.collectAsStateWithLifecycle()
-    val colorBoard by viewModel.colorBoard.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    val uiState by combine(
+        viewModel.selectedColor,
+        viewModel.currentColorName,
+        viewModel.colorBoard
+    ) { selectedColor, currentColorName, colorBoard ->
+        Triple(selectedColor, currentColorName, colorBoard)
+    }.collectAsStateWithLifecycle(
+        initialValue = Triple(Color.Black, null, emptyList()),
+        lifecycle = lifecycle
+    )
+
     ColorPicker(
-        selectedColor = selectedColor,
-        colorName = currentColorName,
+        selectedColor = uiState.first,
+        colorName = uiState.second,
+        colors = uiState.third,
         onSaveColor = {
-            viewModel.saveColor(selectedColor.hue)
+            viewModel.saveColor(uiState.first.hue)
             onSave()
         },
-        onUpdateColorSettings = viewModel::updateColorSettings,
-        colors = colorBoard,
+        onUpdateColorSettings = viewModel::updateColorSettings
     )
 }
 

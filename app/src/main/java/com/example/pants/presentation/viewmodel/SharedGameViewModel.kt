@@ -48,39 +48,51 @@ class SharedGameViewModel(
     }
 
     fun saveColor(newHue: Float) {
+        val currentName = _currentColorName.value.orEmpty()
+        if (currentName.isEmpty()) return
+
         viewModelScope.launch {
-            val updatedBoard = saveColorUseCase(_colorBoard.value, _currentColorName.value.orEmpty(), newHue)
-            _colorBoard.value = updatedBoard
+            val updatedBoard = saveColorUseCase(_colorBoard.value, currentName, newHue)
+            if (_colorBoard.value != updatedBoard) {
+                _colorBoard.value = updatedBoard
+            }
         }
     }
 
 
     fun updateColorSettings(hue: Float) {
         _selectedColor.value = Color.hsv(hue, 1f, 1f)
-        _colorBoard.value = _colorBoard.value.map { color ->
-            if (color.name == _currentColorName.value) {
-                updateColorUseCase(color, hue)
-            } else {
-                color
-            }
+
+        val currentName = _currentColorName.value ?: return
+        val board = _colorBoard.value
+
+        val index = board.indexOfFirst { it.name == currentName }
+        if (index == -1) return
+
+        val currentColor = board[index]
+        val updatedColor = updateColorUseCase(currentColor, hue)
+
+        if (currentColor != updatedColor) {
+            _colorBoard.value = board.toMutableList().apply { this[index] = updatedColor }
         }
     }
 
 
     fun checkColorOrder(board: List<ColorModel>): List<ColorModel>? {
-        when {
+        return when {
             board.isEmpty() -> {
                 initColorBoard()
-                return board
+                board
             }
 
             checkBoardOrderUseCase(board) -> {
                 initColorBoard()
-                return null
+                null
             }
 
             else -> {
-                return board.sortedBy { it.realHue }
+                val sortedBoard = board.sortedBy { it.realHue }
+                if (board != sortedBoard) sortedBoard else board
             }
         }
     }
