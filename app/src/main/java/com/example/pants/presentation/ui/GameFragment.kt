@@ -16,30 +16,21 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class GameFragment : Fragment() {
 
-    private var _viewBinding: FragmentGameBinding? = null
-    private val viewBinding get() = _viewBinding!!
-
+    private val viewBinding by lazy { FragmentGameBinding.inflate(layoutInflater) }
     private val viewModel by activityViewModel<SharedGameViewModel>()
-
-    private var _adapter: ColorListAdapter? = null
-    private val adapter get() = _adapter!!
+    private lateinit var adapter: ColorListAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        super.onCreateView(inflater, container, savedInstanceState)
-
-        _viewBinding = FragmentGameBinding.inflate(inflater, container, false)
-        return viewBinding.root
-    }
+        savedInstanceState: Bundle?
+    ): View = viewBinding.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         with(viewBinding) {
             textTitle.setColoredText(getString(R.string.sort_the_pants))
-            _adapter = ColorListAdapter { colorModel ->
+            adapter = ColorListAdapter { colorModel ->
                 navigateToPicker(colorModel.name)
             }
 
@@ -104,14 +95,7 @@ class GameFragment : Fragment() {
             }
         }
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _viewBinding = null
-        _adapter = null
-    }
-
-    companion object {
+companion object {
         const val COLOR_NAME_ARG = "COLOR_NAME"
     }
 }

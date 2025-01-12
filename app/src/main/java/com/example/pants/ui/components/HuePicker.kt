@@ -27,6 +27,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toRect
 import com.example.pants.R
@@ -61,6 +65,21 @@ fun HuePicker(
                 width = size.width
                 height = size.height
                 cursorWidth = size.width
+            }
+            .semantics {
+                contentDescription = "Hue picker"
+                customActions = listOf(
+                    CustomAccessibilityAction(label = "Increase Hue") {
+                        val newHue = (hue + 5).coerceIn(0f, 360f)
+                        onHueChange(newHue)
+                        true
+                    },
+                    CustomAccessibilityAction(label = "Decrease Hue") {
+                        val newHue = (hue - 5).coerceIn(0f, 360f)
+                        onHueChange(newHue)
+                        true
+                    }
+                )
             }
     ) {
         Canvas(
