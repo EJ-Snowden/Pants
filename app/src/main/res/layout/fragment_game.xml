@@ -19,9 +19,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/colorsList"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:foregroundGravity="center"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@+id/btnCheck"
         app:layout_constraintEnd_toStartOf="@+id/hseGradient"
@@ -45,12 +44,12 @@
     <Button
         android:id="@+id/btnCheck"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:layout_margin="16dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
         android:background="@drawable/rounded_button"
         android:text="@string/next"
         android:textColor="@color/main_color"
-        android:textSize="14sp"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
